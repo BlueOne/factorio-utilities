@@ -1,5 +1,5 @@
 require("util")
-local TableUtils = require("Utils.table")
+local Table = require("Utils.table")
 
 
 local ProtUtils = {}
@@ -8,7 +8,7 @@ local ProtUtils = {}
 local function find(elem, list, cmp)
 	if not cmp then
 		if type(elem) == "table" then
-			cmp = table.compare
+			cmp = Table.compare
 		else
 			for _, other in pairs(list) do
 				if elem == other then
@@ -100,7 +100,7 @@ function ProtUtils.merge_techs(techs, new_name)
 
 
 	-- Prepare new tech
-	local new_tech = table.deepcopy(techs[1])
+	local new_tech = Table.deepcopy(techs[1])
 
 	if not new_name then new_name = techs[1].name end
 	new_tech.name = new_name
@@ -125,7 +125,7 @@ function ProtUtils.merge_techs(techs, new_name)
 				for _, effect in pairs(tech.effects) do
 					-- Recipe Unlock
 					if effect.type == "unlock-recipe" then
-						table.insert(new_tech.effects, table.deepcopy(effect))
+						table.insert(new_tech.effects, Table.deepcopy(effect))
 					else
 						local found = false
 						for _, other in pairs(new_tech.effects) do
@@ -135,7 +135,7 @@ function ProtUtils.merge_techs(techs, new_name)
 							end
 						end
 						if not found then
-							table.insert(new_tech.effects, table.deepcopy(effect))
+							table.insert(new_tech.effects, Table.deepcopy(effect))
 						end
 					end
 				end
@@ -186,21 +186,21 @@ end
 -- Make entity with recipe and item.
 function ProtUtils.new_entity(new_name, old_name, type)
 	ProtUtils.assert_prototype(type, old_name)
-	local entity_prototype = TableUtils.merge{data.raw[type][old_name], {
+	local entity_prototype = Table.merge{data.raw[type][old_name], {
 			name = new_name,
 			minable = {result = new_name},
 		}
 	}
 
 	ProtUtils.assert_prototype("item", old_name)
-	local item_prototype = TableUtils.merge{data.raw.item[old_name], {
+	local item_prototype = Table.merge{data.raw.item[old_name], {
 			name = new_name,
 			place_result = new_name
 		}
 	}
 
 	ProtUtils.assert_prototype("recipe", old_name)
-	local recipe_prototype = TableUtils.merge{data.raw.recipe[old_name], {
+	local recipe_prototype = Table.merge{data.raw.recipe[old_name], {
 			name = new_name,
 			result = new_name,
 		}
@@ -236,7 +236,7 @@ end
 -- Split the technology in two equal techs.
 function ProtUtils.duplicate_tech(tech, new_name)
 	local name = tech.name
-	local new_tech = TableUtils.merge({tech, 
+	local new_tech = Table.merge({tech,
 		{
 			name = new_name,
 			order = tech.order .. new_name,
@@ -301,8 +301,10 @@ function ProtUtils.decode_ingredient_string(packs, factor)
 		["p"] = "production-science-pack",
 		["6"] = "hightech-science-pack",
 		["y"] = "hightech-science-pack",
+		["h"] = "hightech-science-pack",
 		["7"] = "space-science-pack",
 		["s"] = "space-science-pack",
+		["w"] = "space-science-pack",
 	}
 
 	for i = 1, #packs do
@@ -317,7 +319,7 @@ function ProtUtils.decode_ingredient_string(packs, factor)
 					break
 				end
 			end
-			if not found then 
+			if not found then
 				table.insert(ingredients, {added_pack, factor or 1})
 			end
 		else
@@ -331,13 +333,13 @@ end
 
 function ProtUtils.add_recipe_unlock(tech, recipe)
 	tech = ProtUtils.tech(tech)
-	TableUtils.insert(tech, "effects", {type="unlock-recipe", recipe=recipe})
+	Table.insert(tech, "effects", {type="unlock-recipe", recipe=recipe})
 end
 
 
 function ProtUtils.del_recipe_unlock(tech, recipe)
 	tech = ProtUtils.tech(tech)
-	TableUtils.remove(tech, "effects", {type="unlock-recipe", recipe=recipe})
+	Table.remove(tech, "effects", {type="unlock-recipe", recipe=recipe})
 end
 
 
@@ -373,7 +375,7 @@ function ProtUtils.del_prereq(tech, prereq)
 			if p == prereq then
 				table.remove(tech.prerequisites, i)
 			else
-				i = i +1 
+				i = i + 1
 			end
 		end
 	end

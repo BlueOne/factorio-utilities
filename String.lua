@@ -21,7 +21,7 @@ end
 function Str.format_number(amount, append_suffix)
 	local suffix = ""
 	if append_suffix then
-		local suffix_list = 
+		local suffix_list =
 		{
 			["T"] = 1000000000000,
 			["B"] = 1000000000,
@@ -38,7 +38,7 @@ function Str.format_number(amount, append_suffix)
 	end
 	local formatted = amount
 	local k
-	while true do  
+	while true do
 		formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
 		if (k==0) then
 			break
@@ -46,7 +46,7 @@ function Str.format_number(amount, append_suffix)
 	end
 	return formatted..suffix
 end
-  
+
 
 function Str.string_to_position(data)
 	local _, _, x, y = string.find(data, "{(.*),(.*)}")
@@ -84,7 +84,7 @@ function Str.printable(v)
 				return "{…}"
 			end
 		end
-		if one and two then 
+		if one and two then
 			return pos_string
 		elseif not one and not two then
 			return "{}"

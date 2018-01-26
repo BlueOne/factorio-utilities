@@ -34,11 +34,11 @@ end
 function Output.display_floating_text(position, text, stay, color)
 	local pos = position.position or position
 	local entity_info = {name="flying-text", position=pos, text=text, color=color}
-	
+
 	local entity = game.surfaces.nauvis.create_entity(entity_info)
-	
+
 	global.Output.floating_texts[#global.Output.floating_texts + 1] = {entity, entity_info, stay}
-	
+
 	return #global.Output.floating_texts
 end
 

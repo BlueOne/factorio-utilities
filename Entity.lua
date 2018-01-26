@@ -3,12 +3,12 @@
 ------------------
 
 local Maths = require("Utils.Maths")
-local Utils = require("Utils.Utils")
+local Table = require("Utils.Table")
 local Str = require("Utils.String")
 
 local EntityUtils = {}
 
-if global then 
+if global then
     if not global.EntityUtils then global.EntityUtils = { entity_recipe = {} } end
     global.EntityUtils.collision_box_cache = {}
 end
@@ -37,10 +37,10 @@ function EntityUtils.collision_box(entity)
 	end
 	pcall(function()
 		if entity.prototype then
-			rect = Utils.copy(entity.prototype.collision_box)
+			rect = Table.deepcopy(entity.prototype.collision_box)
 		end
 	end)
-	if not rect then rect = Utils.copy(game.entity_prototypes[entity.name].collision_box) end
+	if not rect then rect = Table.deepcopy(game.entity_prototypes[entity.name].collision_box) end
 
 	-- Note: copy outputs a rect as {left_top=..., right_bottom=...}, rotate_rect handles this and returns {[1]=..., [2]=...}.
 	rect = Maths.rotate_rect(rect, Str.rotation_stringtoint(entity.direction))
@@ -108,7 +108,7 @@ function EntityUtils.can_craft(craft, player, need_intermediates)
 
 		if need_intermediates then
 			for _, ingr in pairs(recipe.ingredients) do
-				if (need_intermediates == true or Utils.has_value(need_intermediates, ingr.name)) and player.get_item_count(ingr.name) < ingr.amount then
+				if (need_intermediates == true or Table.find(ingr.name, need_intermediates)) and player.get_item_count(ingr.name) < ingr.amount then
 					return false
 				end
 			end
@@ -239,7 +239,7 @@ function EntityUtils.get_entity_from_pos(pos, myplayer, types, epsilon)
 	local entity = nil
 
 	for _,ent in pairs(myplayer.surface.find_entities_filtered({area = {{-epsilon + x, -epsilon + y}, {epsilon + x, epsilon + y}}})) do
-		if Utils.has_value(accepted_types, ent.type) then
+		if Table.find(ent.type, accepted_types) then
 			entity = ent
 		end
 	end

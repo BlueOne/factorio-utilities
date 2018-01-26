@@ -1,7 +1,8 @@
-local Utils = require("Utils")
 local Maths = {}
+local Table = require("Table")
+local Str = require("Str")
 
-    
+
 -- Maths and Geometry
 ----------------------
 
@@ -53,12 +54,12 @@ function Maths.inside_rect(point, rect)
 	local x, y = Maths.get_coordinates(point)
 	local lower_x, lower_y = Maths.get_coordinates(rect[1] or rect.left_top)
 	local upper_x, upper_y = Maths.get_coordinates(rect[2] or rect.right_bottom)
-	
+
 	if not x or not y or not lower_x or not lower_y or not upper_x or not upper_y then
 		game.print(debug.traceback());
 		error("inside_rect called with invalid parameters.")
 	end
-	
+
 	return lower_x < x and x < upper_x and lower_y < y and y < upper_y
 end
 
@@ -69,7 +70,7 @@ function Maths.rotate_orthogonal(position, rotation)
 	elseif rotation == 2 then return {-y, x}
 	elseif rotation == 4 then return {-x, -y}
 	elseif rotation == 6 then return {y, -x}
-	else game.print(debug.traceback()) error("Bad rotation parameter! rotation = " .. Utils.printable(rotation)) end
+	else game.print(debug.traceback()) error("Bad rotation parameter! rotation = " .. serpent.block(rotation)) end
 end
 
 function Maths.rotate_rect(rect, rotation)
@@ -93,20 +94,16 @@ function Maths.rotate_rect(rect, rotation)
 	end
 end
 
-function Maths.prettytime()
-  local tick = game.tick - (global.start_tick or 0)
-  if settings.global["tas-pretty-time"].value then
-    local hours = string.format("%02.f", math.floor(tick / 216000))
-    local minutes = string.format("%02.f", math.floor(tick / 3600) - hours * 60)
-    local seconds = string.format("%02.f", math.floor(tick / 60) - hours * 3600 - minutes * 60)
-    local ticks = string.format("%02.f", tick - hours * 216000 - minutes * 3600 - seconds * 60)
-    if hours == "00" then
-      return "[" .. minutes .. ":" .. seconds .. ":" .. ticks .. "] "
-    else
-      return "[" .. hours .. ":" .. minutes .. ":" .. seconds .. ":" .. ticks .. "] "
-    end
-  end
-  return "[" .. tick .. "] "
+function Maths.prettytime(tick)
+	local hours = string.format("%02.f", math.floor(tick / 216000))
+	local minutes = string.format("%02.f", math.floor(tick / 3600) - hours * 60)
+	local seconds = string.format("%02.f", math.floor(tick / 60) - hours * 3600 - minutes * 60)
+	local ticks = string.format("%02.f", tick - hours * 216000 - minutes * 3600 - seconds * 60)
+	if hours == "00" then
+		return "[" .. minutes .. ":" .. seconds .. ":" .. ticks .. "] "
+	else
+		return "[" .. hours .. ":" .. minutes .. ":" .. seconds .. ":" .. ticks .. "] "
+	end
 end
 
 
@@ -218,9 +215,9 @@ function Maths.distance_from_rect(pos, rect)
 	local function lt(a, b)
 		return Maths.sqdistance(a, pos) < Maths.sqdistance(b, pos)
 	end
-	local index, corner1 = Utils.get_minimum_index(corners, lt)
+	local index, corner1 = Table.find_minimum(corners, lt)
 	table.remove(corners, index)
-	local _, corner2 = Utils.get_minimum_index(corners, lt)
+	local _, corner2 = Table.find_minimum(corners, lt)
 
 	local closest = {}
 
