@@ -5,27 +5,7 @@ local Table = require("Utils.table")
 local ProtUtils = {}
 
 
-local function find(elem, list, cmp)
-	if not cmp then
-		if type(elem) == "table" then
-			cmp = Table.compare
-		else
-			for _, other in pairs(list) do
-				if elem == other then
-					return true
-				end
-			end
-			return false
-		end
-	end
-
-	for _, other in pairs(list) do
-		if cmp(elem, other) then
-			return other
-		end
-	end
-	return false
-end
+-- General
 
 function ProtUtils.assert_prototype(type, name)
 	if not data.raw[type] then error("Prototype Type not found: " .. serpent.block(type) .. ", " .. debug.traceback()) end
@@ -33,11 +13,11 @@ function ProtUtils.assert_prototype(type, name)
 end
 
 if data then
-	for type, _ in pairs(data.raw) do
-		ProtUtils[type] = function(name)
+	for t, _ in pairs(data.raw) do
+		ProtUtils[t] = function(name)
 			if type(name) == "table" then return name end
-			ProtUtils.assert_prototype(type, name)
-			return data.raw[type][name]
+			ProtUtils.assert_prototype(t, name)
+			return data.raw[t][name]
 		end
 	end
 end
@@ -47,6 +27,46 @@ function ProtUtils.tech(name)
 	ProtUtils.assert_prototype("technology", name)
 	return data.raw.technology[name]
 end
+
+
+-- Make entity with recipe and item.
+function ProtUtils.new_entity(new_name, old_name, type)
+	ProtUtils.assert_prototype(type, old_name)
+	local entity_prototype = Table.merge{data.raw[type][old_name], {
+			name = new_name,
+			minable = {result = new_name},
+		}
+	}
+
+	ProtUtils.assert_prototype("item", old_name)
+	local item_prototype = Table.merge{data.raw.item[old_name], {
+			name = new_name,
+			place_result = new_name
+		}
+	}
+
+	ProtUtils.assert_prototype("recipe", old_name)
+	local recipe_prototype = Table.merge{data.raw.recipe[old_name], {
+			name = new_name,
+			result = new_name,
+		}
+	}
+
+	return entity_prototype, item_prototype, recipe_prototype
+end
+
+-- Delete entity with recipe and item.
+function ProtUtils.remove_entity(name, type)
+	data.raw[type][name] = nil
+	data.raw.recipe[name] = nil
+	data.raw.item[name] = nil
+end
+
+
+
+
+-- Technology
+--------------
 
 function ProtUtils.set_tech(name, tech)
 	data.raw.technology[name] = tech
@@ -81,7 +101,6 @@ function ProtUtils.rename_prereq(old_name, new_name)
 		end
 	end
 end
-
 
 
 -- Merge technologies.
@@ -165,7 +184,7 @@ function ProtUtils.merge_techs(techs, new_name)
 		local i = 1
 		while i <= #new_tech.prerequisites do
 			local prereq = new_tech.prerequisites[i]
-			if find(prereq, old_names) or prereq == new_name then
+			if Table.find(prereq, old_names) or prereq == new_name then
 				table.remove(new_tech.prerequisites, i)
 			else
 				i = i + 1
@@ -181,56 +200,6 @@ function ProtUtils.merge_techs(techs, new_name)
 	data:extend{new_tech}
 	return new_tech
 end
-
-
--- Make entity with recipe and item.
-function ProtUtils.new_entity(new_name, old_name, type)
-	ProtUtils.assert_prototype(type, old_name)
-	local entity_prototype = Table.merge{data.raw[type][old_name], {
-			name = new_name,
-			minable = {result = new_name},
-		}
-	}
-
-	ProtUtils.assert_prototype("item", old_name)
-	local item_prototype = Table.merge{data.raw.item[old_name], {
-			name = new_name,
-			place_result = new_name
-		}
-	}
-
-	ProtUtils.assert_prototype("recipe", old_name)
-	local recipe_prototype = Table.merge{data.raw.recipe[old_name], {
-			name = new_name,
-			result = new_name,
-		}
-	}
-
-	return entity_prototype, item_prototype, recipe_prototype
-end
-
--- Delete entity with recipe and item.
-function ProtUtils.remove_entity(name, type)
-	data.raw[type][name] = nil
-	data.raw.recipe[name] = nil
-	data.raw.item[name] = nil
-end
-
--- Replaces an ingredient in all recipes with a different ingredient
-function ProtUtils.replace_ingredient(name, new_name)
-	for _, recipe in pairs(data.raw.recipe) do
-		for _, set in pairs{recipe, recipe.normal, recipe.expensive} do
-			if set and set.ingredients then
-				for _, ing  in pairs(set.ingredients) do
-					if ing[1] == name then
-						ing[1] = new_name
-					end
-				end
-			end
-		end
-	end
-end
-
 
 
 -- Split the technology in two equal techs.
@@ -268,9 +237,9 @@ function ProtUtils.remove_tech_prereq(tech)
 	if not tech.prerequisites then return end
 
 	for _, t in pairs(data.raw.technology) do
-		if t.prerequisites and find(tech.name, t.prerequisites) then
+		if t.prerequisites and Table.find(tech.name, t.prerequisites) then
 			ProtUtils.del_prereq(t, tech.name)
-			for _, p in pairs(tech.prerequisites) do 
+			for _, p in pairs(tech.prerequisites) do
 				ProtUtils.add_prereq(t, p)
 			end
 		end
@@ -381,7 +350,6 @@ function ProtUtils.del_prereq(tech, prereq)
 	end
 end
 
-
 function ProtUtils.tech_cost(ingredients)
 	if type(ingredients) == "string" then
 		ingredients = ProtUtils.decode_ingredient_string(ingredients)
@@ -404,9 +372,71 @@ function ProtUtils.tech_cost(ingredients)
 	return s
 end
 
+
 function ProtUtils.set_tech_cost(tech, packs, count, time, factor)
 	tech = ProtUtils.tech(tech)
 	tech.unit = ProtUtils.pack_unit(packs, count, time, factor)
 end
+
+
+
+
+-- Recipe
+----------
+
+-- Replaces an ingredient in all recipes with a different ingredient
+function ProtUtils.recipe_replace_ingredient_all(name, new_name)
+	for _, recipe in pairs(data.raw.recipe) do
+		for _, set in pairs{recipe, recipe.normal, recipe.expensive} do
+			if set and set.ingredients then
+				for _, ing  in pairs(set.ingredients) do
+					if ing[1] == name then
+						ing[1] = new_name
+					end
+				end
+			end
+		end
+	end
+end
+
+
+
+-- Set name and unlock it in all techs that also unlock the original.
+function ProtUtils.duplicate_recipe(recipe, new_name)
+	recipe = Table.deepcopy(ProtUtils.recipe(recipe))
+	local old_name = recipe.name
+	recipe.name = new_name
+
+	if recipe.enabled then return recipe end
+	for _, tech in pairs(data.raw.technology) do
+		if tech.effects and Table.find({type="unlock-recipe", recipe=old_name}, tech.effects) then
+			table.insert(tech.effects, {type="unlock-recipe", recipe=new_name})
+		end
+	end
+	return recipe
+end
+
+
+function ProtUtils.recipe_replace_ingredient(recipe, old_ingredient, new_ingredient, factor)
+	factor = factor or 1
+	for _, ingr in pairs(recipe.ingredients) do
+		if ingr[1] == old_ingredient then
+			ingr[1] = new_ingredient
+			ingr[2] = ingr[2] * factor
+		end
+	end
+end
+
+function ProtUtils.recipe_remove_ingredient(recipe, old_ingr)
+	local i = 1
+	while i <= #recipe.ingredients do
+		if recipe.ingredients[i][1] == old_ingr then
+			table.remove(recipe.ingredients, i)
+		else
+			i = i + 1
+		end
+	end
+end
+
 
 return ProtUtils

@@ -11,22 +11,40 @@ TableUtils.copy = util.table.deepcopy
 
 -- Finding
 
-function TableUtils.find(elem, list, cmp)
-	if not cmp then
-		if type(elem) == "table" then
-			cmp = TableUtils.compare
+-- Example calls:
+-- find(elem, list)
+-- find(elem, list, equal_func)
+-- find(list, identifier_func)
+-- Returns key, value or false.
+
+function TableUtils.find(arg1, arg2, arg3)
+-- find(list, identifier_func)
+	if type(arg1) == "table" and type(arg2) == "function" then
+		for k, v in pairs(arg1) do
+			if arg2(v) then
+				return k, v
+			end
+		end
+		return false
+	end
+
+	-- find(elem, list)
+	if not arg3 then
+		if type(arg1) == "table" then
+			arg3 = TableUtils.compare
 		else
-			for k, other in pairs(list) do
-				if elem == other then
-					return k
+			for k, other in pairs(arg2) do
+				if arg1 == other then
+					return k, other
 				end
 			end
 			return false
 		end
 	end
 
-	for k, other in pairs(list) do
-		if cmp(elem, other) then
+	-- find(elem, list, equal_func)
+	for k, other in pairs(arg2) do
+		if arg3(arg1, other) then
 			return k, other
 		end
 	end
