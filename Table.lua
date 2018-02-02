@@ -73,33 +73,35 @@ end
 
 
 -- Merging
-function TableUtils.concat_lists(table1, table2)
-	for i = 1, #table2 do
-		table1[#table1+i] = table2[i]
+function TableUtils.concat_lists(tables)
+	local table1 = tables[1]
+	for j, t in pairs(tables) do
+		if j ~= 1 then
+			for i = 1, #t do
+				table1[#table1+i] = t[i]
+			end
+		end
 	end
 	return table1
 end
 
 
 
-function TableUtils.merge_inplace_recursive(table1, table2)
-	for k, v in pairs(table2) do
-		if type(v) == "table" then
-			if type(table1[k] or false == "string") then
-				table1[k] = TableUtils.merge_inplace_recursive(table1[k], v)
+function TableUtils.merge_inplace(tables)
+	if not tables then error("Nil argument for table merge. " .. debug.traceback()) end
+	local table1 = tables[1]
+	for i, t in pairs(tables) do
+		if i ~= 1 then
+			for k, v in pairs(t) do
+				if type(v) == "table" and (table1[k] or false) == "table"then
+					table1[k] = TableUtils.merge_inplace_recursive{table1[k], v}
+				else
+					table1[k] = TableUtils.deepcopy(v)
+				end
 			end
-		else
-			table1[k] = v
 		end
 	end
 
-	return table1
-end
-
-function TableUtils.merge_inplace(table1, table2)
-	for k, v in pairs(table2) do
-		table1[k] = v
-	end
 	return table1
 end
 
