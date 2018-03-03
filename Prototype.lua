@@ -427,10 +427,11 @@ function ProtUtils.recipe_replace_ingredient(recipe, old_ingredient, new_ingredi
 	end
 end
 
-function ProtUtils.recipe_remove_ingredient(recipe, old_ingr)
+function ProtUtils.recipe_remove_ingredient(recipe, old_ingredient)
 	local i = 1
 	while i <= #recipe.ingredients do
-		if recipe.ingredients[i][1] == old_ingr then
+		local ingr = recipe.ingredients[i]
+		if ingr[1] == old_ingredient then
 			table.remove(recipe.ingredients, i)
 		else
 			i = i + 1
