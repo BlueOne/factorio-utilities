@@ -1,6 +1,5 @@
 local Maths = {}
 local Table = require("Table")
-local Str = require("Str")
 
 
 -- Maths and Geometry
@@ -11,14 +10,17 @@ function Maths.clamp(value, min, max)
 	if value < min then return min elseif value > max then return max else return value end
 end
 
+
+-- Pass random_number if you care about random seeds. defaults to math.random()
 function Maths.roulette_choice(weights, random_number)
 	local sum = 0
 	for _, w in pairs(weights) do
 		sum = sum + w
 	end
 
-	if sum == 0 then error("Roulette Choice called with only zero weights!") end
+	if sum == 0 then game.print(debug.traceback()); error("Roulette Choice called with only zero weights!") end
 
+	if not random_number then random_number = math.random() end
 	random_number = random_number * sum
 	local current = 0
 	for k, w in pairs(weights) do
@@ -94,18 +96,23 @@ function Maths.rotate_rect(rect, rotation)
 	end
 end
 
-function Maths.prettytime(tick)
+function Maths.prettytime(tick, hide_ticks)
 	local hours = string.format("%02.f", math.floor(tick / 216000))
 	local minutes = string.format("%02.f", math.floor(tick / 3600) - hours * 60)
 	local seconds = string.format("%02.f", math.floor(tick / 60) - hours * 3600 - minutes * 60)
-	local ticks = string.format("%02.f", tick - hours * 216000 - minutes * 3600 - seconds * 60)
-	if hours == "00" then
-		return "[" .. minutes .. ":" .. seconds .. ":" .. ticks .. "] "
-	else
-		return "[" .. hours .. ":" .. minutes .. ":" .. seconds .. ":" .. ticks .. "] "
-	end
-end
 
+	local out
+	if hours == "00" then
+		out = minutes .. ":" .. seconds
+	else
+		out = hours .. ":" .. minutes .. ":" .. seconds
+	end
+	if show_ticks then
+		local ticks = string.format("%02.f", tick - hours * 216000 - minutes * 3600 - seconds * 60)
+		out = out .. ":" .. ticks
+	end
+	return out
+end
 
 
 -- Geometry

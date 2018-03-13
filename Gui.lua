@@ -8,15 +8,21 @@ local GuiUtils = {}
 
 if not global.GuiUtils then global.GuiUtils = { hide_buttons = {} } end
 
-function GuiUtils.hide_button_handler(event)
+
+
+
+-- Hide Buttons for UI elements
+--------------------------------
+
+
+local function hide_button_handler(event)
 	-- local player = game.players[event.player_index]
 	local element = event.element
-	local button_data = global.Utils.hide_buttons[event.player_index][element.name]
+	local button_data = global.GuiUtils.hide_buttons[event.player_index][element.name]
 	button_data.element.style.visible = not button_data.element.style.visible
 end
 
-
-GuiEvent.on_click("hide_button_.*", GuiUtils.hide_button_handler)
+GuiEvent.on_click("hide_button_(.*)", hide_button_handler)
 
 function GuiUtils.make_hide_button(player, gui_element, is_sprite, text, parent, style)
 	global.GuiUtils.hide_buttons[player.index] = global.GuiUtils.hide_buttons[player.index] or {}
@@ -27,7 +33,7 @@ function GuiUtils.make_hide_button(player, gui_element, is_sprite, text, parent,
 	if is_sprite then
 		button = parent.add{name=name, type="sprite-button", style=style or mod_gui.button_style, sprite=text,}
 	else
-		button = parent.add{name=name, type="button", style=style or "button_style", caption=text}		
+		button = parent.add{name=name, type="button", style=style, caption=text}
 	end
 	button.style.visible = true
 	global.GuiUtils.hide_buttons[player.index][name] = {
@@ -40,7 +46,7 @@ function GuiUtils.remove_hide_button(player, gui_element)
 	local name = "hide_button_" .. gui_element.name
 	local button_data = global.GuiUtils.hide_buttons[player.index][name]
 	button_data.button.destroy()
-	global.Utils.hide_buttons[player.index][name] = nil
+	global.GuiUtils.hide_buttons[player.index][name] = nil
 	GuiEvent.remove(defines.events.on_gui_click, name)
 end
 
@@ -51,6 +57,7 @@ function GuiUtils.hide_button_info(player, gui_element)
 	end
 	return global.GuiUtils.hide_buttons[player.index][name]	
 end
+
 
 
 return GuiUtils

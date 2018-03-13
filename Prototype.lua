@@ -7,6 +7,27 @@ local ProtUtils = {}
 
 -- General
 
+-- All of these happened ...
+function ProtUtils.correct_item(s)
+	local fix = {
+		["gear-wheel"] = "iron-gear-wheel",
+		["iron-gearwheel"] = "iron-gear-wheel",
+		["machine-gun"] = "submachine-gun",
+		ammo = "firearm-magazine",
+		assembler = "assembling-machine-1",
+		["assembling-machine"] = "assembling-machine-1",
+		["mining-drill"] = "electric-mining-drill",
+		["engine"] = "engine-unit",
+		["electric-engine"] = "electric-engine-unit",
+		["small-power-pole"] = "small-electric-pole",
+		["medium-power-pole"] = "medium-electric-pole",
+		["big-power-pole"] = "big-electric-pole",
+		["lamp"] = "small-lamp",
+		["portable-solar-panel"] = "solar-panel-equipment",
+	}
+	return fix[s] or s
+end
+
 function ProtUtils.assert_prototype(type, name)
 	if not data.raw[type] then error("Prototype Type not found: " .. serpent.block(type) .. ", " .. debug.traceback()) end
 	if not data.raw[type][name] then error("Prototype not found: " .. serpent.block(type) .. "." .. serpent.block(name) .. ", " .. debug.traceback()) end
@@ -29,6 +50,17 @@ function ProtUtils.tech(name)
 end
 
 
+function ProtUtils.generic_recipe(name)
+	return {
+		type = "recipe",
+		name = name,
+		enabled = true,
+		ingredients = {},
+		result = name,
+	}
+
+end
+
 -- Make entity with recipe and item.
 function ProtUtils.new_entity(new_name, old_name, type)
 	ProtUtils.assert_prototype(type, old_name)
@@ -45,12 +77,19 @@ function ProtUtils.new_entity(new_name, old_name, type)
 		}
 	}
 
-	ProtUtils.assert_prototype("recipe", old_name)
-	local recipe_prototype = Table.merge{data.raw.recipe[old_name], {
-			name = new_name,
-			result = new_name,
+	local recipe_prototype = data.raw.recipe[old_name]
+	if recipe_prototype then
+		Table.merge{
+			recipe_prototype,
+			{
+				name = new_name,
+				result = new_name,
+			}
 		}
-	}
+	else
+		-- Generic Recipe
+		recipe_prototype = ProtUtils.generic_recipe(new_name)
+	end
 
 	return entity_prototype, item_prototype, recipe_prototype
 end

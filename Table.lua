@@ -7,7 +7,7 @@ local TableUtils = {}
 TableUtils.compare = util.table.compare
 TableUtils.deepcopy = util.table.deepcopy
 TableUtils.copy = util.table.deepcopy
-
+TableUtils.merge = util.merge
 
 -- Finding
 
@@ -103,23 +103,6 @@ function TableUtils.merge_inplace(tables)
 	end
 
 	return table1
-end
-
-
-function TableUtils.merge(tables)
-	local ret = {}
-	for _, tab in ipairs(tables) do
-		for k, v in pairs(tab) do
-			if (type(v) == "table") and (type(ret[k] or false) == "table") then
-				ret[k] = TableUtils.merge{ret[k], v}
-			elseif type(v == "table") then
-				ret[k] = TableUtils.deepcopy(v)
-			else
-				ret[k] = v
-			end
-		end
-	end
-	return ret
 end
 
 
