@@ -88,7 +88,7 @@ end
 
 
 function TableUtils.merge_inplace(tables)
-	if not tables then error("Nil argument for table merge. " .. debug.traceback()) end
+	if not tables or not tables[1] then error("Bogus argument for table merge. " .. debug.traceback()) end
 	local table1 = tables[1]
 	for i, t in pairs(tables) do
 		if i ~= 1 then

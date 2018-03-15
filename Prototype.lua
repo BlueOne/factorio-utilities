@@ -24,6 +24,9 @@ function ProtUtils.correct_item(s)
 		["big-power-pole"] = "big-electric-pole",
 		["lamp"] = "small-lamp",
 		["portable-solar-panel"] = "solar-panel-equipment",
+		["small-worm"] = "small-worm-turret",
+		["medium-worm"] = "medium-worm-turret",
+		["big-worm"] = "big-worm-turret"
 	}
 	return fix[s] or s
 end
@@ -58,7 +61,29 @@ function ProtUtils.generic_recipe(name)
 		ingredients = {},
 		result = name,
 	}
+end
 
+function ProtUtils.generic_item(name, t)
+	local item = {
+		type = "item",
+		name = name,
+		icon = "alien-artifact-goo",
+		icon_size = 32,
+		flags = {"goes-to-main-inventory"},
+		subgroup = "raw-material",
+		order = "g",
+		place_result = name,
+		stack_size = 100
+	}
+
+
+	if t then
+		for k, v in pairs(t) do
+			item[k] = v
+		end
+	end
+
+	return item
 end
 
 -- Make entity with recipe and item.
