@@ -114,6 +114,26 @@ function Maths.prettytime(tick, hide_ticks)
 	return out
 end
 
+function Maths.formatted_time(ticks)
+    local hours = math.floor(ticks / 60 / 60 / 60)
+    local minutes = math.floor(ticks / 60 / 60 - hours * 60)
+    local seconds = math.floor(ticks / 60 - hours * 60*60 - minutes * 60)
+	local tick_time = math.floor(ticks % 60)
+
+    local result = ""
+    if hours > 0 then
+        result = hours .. ":"
+    end
+
+    if minutes < 0 then minutes = 0 end
+    if seconds < 0 then seconds = 0 end
+    if minutes < 10 and hours > 0 then result = result .. "0" .. minutes else result = result .. minutes end
+    if seconds < 10 then result = result .. ":" .. "0" .. seconds else result = result .. ":" .. seconds end
+	if tick_time < 10 then result = result .. "." .. "0" .. tick_time else result = result .. "." .. tick_time end
+    return result
+end
+
+
 
 -- Geometry
 ------------
