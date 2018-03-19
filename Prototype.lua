@@ -1,5 +1,5 @@
 require("util")
-local Table = require("Utils.table")
+local Table = require("Utils.Table")
 
 
 local ProtUtils = {}
