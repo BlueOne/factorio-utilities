@@ -68,6 +68,7 @@ function Str.printable(v)
 	elseif v == true then return "true"
 	elseif v == false then return "false"
 	elseif type(v) == "number" then return Maths.roundn(v, 1)
+	elseif type(v) == "function" then return "<function>"
 	elseif type(v) == "table" then
 		local pos_string = ", "
 		local one = false

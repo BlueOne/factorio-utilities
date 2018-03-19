@@ -2,8 +2,9 @@ local Table = require("Utils.Table")
 
 local ScenarioUtils = {}
 
-function ScenarioUtils.create_item_chests(surface, position, chest_type, force, items)
+function ScenarioUtils.create_item_chests(surface, position, force, items, chest_type)
     local chest
+    if not chest_type then chest_type = "steel-chest" end
     local function create_chest()
         local pos = surface.find_non_colliding_position(chest_type, position, 10, 0.5)
         chest = surface.create_entity{name=chest_type, force = force, position = pos}
@@ -27,7 +28,7 @@ end
 
 function ScenarioUtils.spawn_player(player, surface, position, items)
     if player.character then player.character.destroy() end
-    local pos = surface.find_non_colliding_position("player", position, 30, 4)
+    local pos = surface.find_non_colliding_position("player", position, 30, 1.3)
     player.teleport(pos, surface)
     player.create_character()
     for item_type, item_param in pairs(items or {}) do

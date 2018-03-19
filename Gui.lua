@@ -18,13 +18,16 @@ if not global.GuiUtils then global.GuiUtils = { hide_buttons = {} } end
 local function hide_button_handler(event)
 	-- local player = game.players[event.player_index]
 	local element = event.element
+	local player = game.players[event.player_index]
 	local button_data = global.GuiUtils.hide_buttons[event.player_index][element.name]
-	button_data.element.style.visible = not button_data.element.style.visible
+	local target_element = button_data.element
+	target_element.style.visible = not target_element.style.visible
+	if target_element.style.visible and button_data.set_as_opened then player.opened = target_element end
 end
 
 GuiEvent.on_click("hide_button_(.*)", hide_button_handler)
 
-function GuiUtils.make_hide_button(player, gui_element, is_sprite, text, parent, style)
+function GuiUtils.make_hide_button(player, gui_element, is_sprite, text, parent, style, set_as_opened)
 	global.GuiUtils.hide_buttons[player.index] = global.GuiUtils.hide_buttons[player.index] or {}
 
 	if not parent then parent = mod_gui.get_button_flow(player) end
@@ -39,6 +42,7 @@ function GuiUtils.make_hide_button(player, gui_element, is_sprite, text, parent,
 	global.GuiUtils.hide_buttons[player.index][name] = {
 		element = gui_element,
 		button = button,
+		set_as_opened = set_as_opened
 	}
 end
 
