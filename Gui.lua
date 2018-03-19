@@ -20,6 +20,7 @@ local function hide_button_handler(event)
 	local element = event.element
 	local player = game.players[event.player_index]
 	local button_data = global.GuiUtils.hide_buttons[event.player_index][element.name]
+	if not button_data then return end
 	local target_element = button_data.element
 	target_element.style.visible = not target_element.style.visible
 	if target_element.style.visible and button_data.set_as_opened then player.opened = target_element end
