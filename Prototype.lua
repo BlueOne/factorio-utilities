@@ -104,7 +104,7 @@ function ProtUtils.new_entity(new_name, old_name, type)
 
 	local recipe_prototype = data.raw.recipe[old_name]
 	if recipe_prototype then
-		Table.merge{
+		recipe_prototype = Table.merge{
 			recipe_prototype,
 			{
 				name = new_name,

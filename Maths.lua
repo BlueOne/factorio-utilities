@@ -2,8 +2,13 @@ local Maths = {}
 local Table = require("Table")
 
 
--- Maths and Geometry
-----------------------
+-- Maths and Geometry Utilities
+-- ===========================================================================
+
+
+
+-- Numbers
+------------------------------------------------------------------------------
 
 -- Bound a value between two thresholds
 function Maths.clamp(value, min, max)
@@ -29,6 +34,11 @@ function Maths.roulette_choice(weights, random_number)
 	end
 end
 
+function Maths.randfloat(upper, lower)
+	return math.random() * (upper-lower) + lower
+end
+
+
 function Maths.roundn(x, prec)
 	if not x then game.print(debug.traceback()); error("roundn called without valid parameter.") end
 	if not prec then
@@ -38,11 +48,55 @@ function Maths.roundn(x, prec)
 	end
 end
 
--- don't use this function, use in_range instead
--- TODO: remove this function
-function Maths.inrange(position, myplayer)
-  return ((position[1] - myplayer.position.x)^2 + (position[2] - myplayer.position.y)^2) < 36
+
+
+
+
+-- Time
+------------------------------------------------------------------------------
+
+function Maths.prettytime(tick, hide_ticks)
+	local hours = string.format("%02.f", math.floor(tick / 216000))
+	local minutes = string.format("%02.f", math.floor(tick / 3600) - hours * 60)
+	local seconds = string.format("%02.f", math.floor(tick / 60) - hours * 3600 - minutes * 60)
+
+	local out
+	if hours == "00" then
+		out = minutes .. ":" .. seconds
+	else
+		out = hours .. ":" .. minutes .. ":" .. seconds
+	end
+	if show_ticks then
+		local ticks = string.format("%02.f", tick - hours * 216000 - minutes * 3600 - seconds * 60)
+		out = out .. ":" .. ticks
+	end
+	return out
 end
+
+function Maths.formatted_time(ticks)
+    local hours = math.floor(ticks / 60 / 60 / 60)
+    local minutes = math.floor(ticks / 60 / 60 - hours * 60)
+    local seconds = math.floor(ticks / 60 - hours * 60*60 - minutes * 60)
+	local tick_time = math.floor(ticks % 60)
+
+    local result = ""
+    if hours > 0 then
+        result = hours .. ":"
+    end
+
+    if minutes < 0 then minutes = 0 end
+    if seconds < 0 then seconds = 0 end
+    if minutes < 10 and hours > 0 then result = result .. "0" .. minutes else result = result .. minutes end
+    if seconds < 10 then result = result .. ":" .. "0" .. seconds else result = result .. ":" .. seconds end
+	if tick_time < 10 then result = result .. "." .. "0" .. tick_time else result = result .. "." .. tick_time end
+    return result
+end
+
+
+
+
+-- Geometry
+------------------------------------------------------------------------------
 
 function Maths.expand_rect(rect, r)
 	local left_top = rect[1] or rect.left_top
@@ -96,47 +150,6 @@ function Maths.rotate_rect(rect, rotation)
 	end
 end
 
-function Maths.prettytime(tick, hide_ticks)
-	local hours = string.format("%02.f", math.floor(tick / 216000))
-	local minutes = string.format("%02.f", math.floor(tick / 3600) - hours * 60)
-	local seconds = string.format("%02.f", math.floor(tick / 60) - hours * 3600 - minutes * 60)
-
-	local out
-	if hours == "00" then
-		out = minutes .. ":" .. seconds
-	else
-		out = hours .. ":" .. minutes .. ":" .. seconds
-	end
-	if show_ticks then
-		local ticks = string.format("%02.f", tick - hours * 216000 - minutes * 3600 - seconds * 60)
-		out = out .. ":" .. ticks
-	end
-	return out
-end
-
-function Maths.formatted_time(ticks)
-    local hours = math.floor(ticks / 60 / 60 / 60)
-    local minutes = math.floor(ticks / 60 / 60 - hours * 60)
-    local seconds = math.floor(ticks / 60 - hours * 60*60 - minutes * 60)
-	local tick_time = math.floor(ticks % 60)
-
-    local result = ""
-    if hours > 0 then
-        result = hours .. ":"
-    end
-
-    if minutes < 0 then minutes = 0 end
-    if seconds < 0 then seconds = 0 end
-    if minutes < 10 and hours > 0 then result = result .. "0" .. minutes else result = result .. minutes end
-    if seconds < 10 then result = result .. ":" .. "0" .. seconds else result = result .. ":" .. seconds end
-	if tick_time < 10 then result = result .. "." .. "0" .. tick_time else result = result .. "." .. tick_time end
-    return result
-end
-
-
-
--- Geometry
-------------
 
 function Maths.translate(position, offset)
 	if not offset then return position end
@@ -168,10 +181,28 @@ function Maths.center(rect)
 end
 
 
-function Maths.in_range(command, myplayer)
-	return Maths.distance_from_rect(myplayer.position, command.rect) <= command.distance
+function Maths.in_range(rect, position, distance)
+	return Maths.distance_from_rect(position, rect) <= distance
 end
 
+
+function Maths.random_position(center, radius, is_square)
+	local px, py = Maths.get_coordinates(center)
+	if is_square then
+		local x = px + Maths.randfloat(-radius, radius)
+		local y = py + Maths.randfloat(-radius, radius)
+		return {x, y}
+	else
+		local phi = Maths.randfloat(0, 2*math.pi)
+		local r = Maths.randfloat(0, radius)
+		return Maths.translate(Maths.polar_to_cart(r, phi), center)
+	end
+end
+
+
+function Maths.polar_to_cart(r, phi)
+	return {math.cos(phi) * r, math.sin(phi) * r}
+end
 
 -- Outputs the closest point we need to if we want to build e.g. an assembler
 -- Closest here is not quite according to euclidean distance since we can only walk axis-aligned or diagonally.
