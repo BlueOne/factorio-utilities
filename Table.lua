@@ -86,18 +86,14 @@ function TableUtils.concat_lists(tables)
 end
 
 
-
-function TableUtils.merge_inplace(tables)
+-- Merges everything into the first table in the list, deepcopying everything in the other tables.
+function TableUtils.merge_into_first(tables)
 	if not tables or not tables[1] then error("Bogus argument for table merge. " .. debug.traceback()) end
 	local table1 = tables[1]
 	for i, t in pairs(tables) do
 		if i ~= 1 then
 			for k, v in pairs(t) do
-				if type(v) == "table" and (table1[k] or false) == "table"then
-					table1[k] = TableUtils.merge_inplace_recursive{table1[k], v}
-				else
-					table1[k] = TableUtils.deepcopy(v)
-				end
+				table1[k] = TableUtils.deepcopy(v)
 			end
 		end
 	end
