@@ -7,6 +7,7 @@ local mod_gui = require("mod-gui")
 local GuiUtils = {}
 
 if not global.GuiUtils then global.GuiUtils = { hide_buttons = {} } end
+if not global.GuiUtils.hide_buttons then global.GuiUtils.hide_buttons = {} end
 
 
 

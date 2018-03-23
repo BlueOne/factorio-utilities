@@ -26,7 +26,9 @@ function ProtUtils.correct_item(s)
 		["portable-solar-panel"] = "solar-panel-equipment",
 		["small-worm"] = "small-worm-turret",
 		["medium-worm"] = "medium-worm-turret",
-		["big-worm"] = "big-worm-turret"
+		["big-worm"] = "big-worm-turret",
+		["portable-fusion-reactor-equipment"] = "fusion-reactor-equipment",
+		["worker-robot-speed"] = "worker-robots-speed"
 	}
 	return fix[s] or s
 end
