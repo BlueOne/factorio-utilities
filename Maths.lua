@@ -158,11 +158,19 @@ function Maths.translate(position, offset)
 	return {x+dx, y+dy}
 end
 
-function Maths.sqdistance(pos1, pos2)
-	if not pos1[1] and not pos1.x then game.print(serpent.block(pos1)) game.print(debug.traceback()) error("Called distance with invalid parameter!") end
+function Maths.distance(pos1, pos2)
 	local x1, y1 = Maths.get_coordinates(pos1)
 	local x2, y2 = Maths.get_coordinates(pos2)
+	if not x1 or not x2 then game.print(serpent.block(pos1)) game.print(serpent.block(pos2)) game.print(debug.traceback()) error("Called distance with invalid parameter!") end
+	
+	return ((x1 - x2)^2 + (y1 - y2)^2)^(0.5)
+end
 
+function Maths.sqdistance(pos1, pos2)
+	local x1, y1 = Maths.get_coordinates(pos1)
+	local x2, y2 = Maths.get_coordinates(pos2)
+	if not x1 or not x2 then game.print(serpent.block(pos1)) game.print(serpent.block(pos2)) game.print(debug.traceback()) error("Called distance with invalid parameter!") end
+	
 	return (x1 - x2)^2 + (y1 - y2)^2
 end
 
