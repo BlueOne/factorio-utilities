@@ -18,9 +18,11 @@ if not global.GuiUtils.hide_buttons then global.GuiUtils.hide_buttons = {} end
 
 local function hide_button_handler(event)
 	-- local player = game.players[event.player_index]
+	local player_buttons = global.GuiUtils.hide_buttons[event.player_index]
+	if not player_buttons then return end
 	local element = event.element
 	local player = game.players[event.player_index]
-	local button_data = global.GuiUtils.hide_buttons[event.player_index][element.name]
+	local button_data = player_buttons[element.name]
 	if not button_data then return end
 	local target_element = button_data.element
 	target_element.style.visible = not target_element.style.visible
@@ -29,8 +31,11 @@ end
 
 GuiEvent.on_click("hide_button_(.*)", hide_button_handler)
 
+-- set_as_opened doesnt seem to work.
 function GuiUtils.make_hide_button(player, gui_element, is_sprite, text, parent, style, set_as_opened)
 	global.GuiUtils.hide_buttons[player.index] = global.GuiUtils.hide_buttons[player.index] or {}
+	game.print(serpent.block(global.GuiUtils.hide_buttons))
+	local keys = {} for k, _ in pairs(global) do table.insert(keys, k) end game.print(serpent.block(keys))
 
 	if not parent then parent = mod_gui.get_button_flow(player) end
 	local name = "hide_button_" .. gui_element.name
