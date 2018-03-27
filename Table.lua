@@ -102,6 +102,14 @@ function TableUtils.merge_into_first(tables)
 end
 
 
+function TableUtils.count_keys(t)
+	local s = 0
+	for _, _ in pairs(t) do
+		s = s + 1
+	end
+	return s
+end
+
 
 function TableUtils.keys(t)
 	local keys = {}
