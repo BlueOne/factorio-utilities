@@ -4,6 +4,8 @@ local Maths = require("Utils/Maths")
 local EntityUtils = require("Utils/EntityUtils")
 local Chunked = require("Utils/Chunked")
 
+
+-- Spawn Entities or queue until the chunk is generated. Relatively slow currently, should rework.
 -- TODO: Bug, I found a chunk where entities werent created.
 
 local Spawn = {}

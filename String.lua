@@ -17,6 +17,20 @@ function Str.namespace_prefix(name, command_group)
 	end
 end
 
+function Str.escape_lua_pattern(x)
+	return (x:gsub('%%', '%%%%')
+		:gsub('^%^', '%%^')
+		:gsub('%$$', '%%$')
+		:gsub('%(', '%%(')
+		:gsub('%)', '%%)')
+		:gsub('%.', '%%.')
+		:gsub('%[', '%%[')
+		:gsub('%]', '%%]')
+		:gsub('%*', '%%*')
+		:gsub('%+', '%%+')
+		:gsub('%-', '%%-')
+		:gsub('%?', '%%?'))
+end
 
 function Str.format_number(amount, append_suffix)
 	local suffix = ""
