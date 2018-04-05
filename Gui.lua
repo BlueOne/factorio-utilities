@@ -61,6 +61,7 @@ function GuiUtils.make_hide_button(player, gui_element, is_sprite, text, parent,
 end
 
 function GuiUtils.remove_hide_button(player, gui_element)
+	if not gui_element then game.print(debug.traceback()) end
 	local name = "hide_button_" .. gui_element.name
 	local button_data = global.GuiUtils.hide_buttons[player.index][name]
 	button_data.button.destroy()

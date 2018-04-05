@@ -14,7 +14,6 @@ local mod_gui = require("mod-gui")
 local Table = require("Utils/Table")
 local Maths = require("Utils/Maths")
 local GuiUtils = require("Utils/Gui")
-local String = require("Utils/String")
 
 
 local VoteUI = {}
@@ -42,8 +41,17 @@ VoteUI.on_vote_finished = script.generate_event_name()
 -- options = {
 --     name1 = { title =, tooltip=},
 -- }
+
+function VoteUI.get_vote(name)
+	return global.VoteUI.votes[name]
+end
+
 function VoteUI.init_vote(name, cfg, options)
-	local vote_data = {
+	local vote_data = global.VoteUI.votes[name]
+	if vote_data then 
+		error("Duplicate Vote.")
+	end
+	vote_data = {
 		name = name,
 		options = options,
 
@@ -141,7 +149,7 @@ function VoteUI.stop_vote(vote, cause, option_name)
                     break
                 end
             end
-        elseif vote.cfg.mode == "majority" then
+        elseif vote.cfg.mode == "majority" or vote.cfg.mode == "timeout" then
             local weights = {}
             local most_votes = -1
             for name, vote_count in pairs(vote.choices) do 
@@ -171,12 +179,15 @@ function VoteUI.stop_vote(vote, cause, option_name)
     }
 	script.raise_event(VoteUI.on_vote_finished, event)
 	
-	if vote.cfg.force then 
-		for _, player in pairs(vote.cfg.force.players) do
-			VoteUI.remove_player(vote, player)
-		end
-    end
-    
+    VoteUI.destroy(vote)
+end
+
+function VoteUI.destroy(vote)
+	for player_index, _ in pairs(vote.players) do
+		local player = game.players[player_index]
+		VoteUI.remove_player(vote, player)
+	end
+
     global.VoteUI.votes[vote.name] = nil
 end
 
