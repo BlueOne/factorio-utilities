@@ -4,6 +4,7 @@ local Maths = require("Utils.Maths")
 
 local Chunked = {}
 
+-- Relatively Structured way of storing mass data related to positions by splitting the map into chunks
 
 function Chunked.new(chunk_size)
     return {

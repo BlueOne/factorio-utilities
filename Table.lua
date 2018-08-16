@@ -86,7 +86,7 @@ function TableUtils.concat_lists(tables)
 end
 
 
-function TableUtils.merge_inplace(tables)
+function TableUtils.merge_into_first(tables)
 	if not tables or not tables[1] then error("Bogus argument for table merge. " .. debug.traceback()) end
 	local table1 = tables[1]
 	for i, t in pairs(tables) do
@@ -97,6 +97,7 @@ function TableUtils.merge_inplace(tables)
 				else
 					table1[k] = TableUtils.deepcopy(v)
 				end
+				table1[k] = TableUtils.deepcopy(v)
 			end
 		end
 	end
@@ -118,6 +119,14 @@ function TableUtils.set_merge(tables)
 			end
 		end
 	end
+end
+
+function TableUtils.count_keys(t)
+	local s = 0
+	for _, _ in pairs(t) do
+		s = s + 1
+	end
+	return s
 end
 
 

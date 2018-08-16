@@ -4,10 +4,12 @@ local ScenarioUtils = {}
 
 function ScenarioUtils.create_item_chests(surface, position, force, items, chest_type)
     local chest
+    local created_chests = {}
     if not chest_type then chest_type = "steel-chest" end
     local function create_chest()
         local pos = surface.find_non_colliding_position(chest_type, position, 10, 0.5)
         chest = surface.create_entity{name=chest_type, force = force, position = pos}
+        table.insert(created_chests, chest)
     end
     create_chest()
 
@@ -24,6 +26,7 @@ function ScenarioUtils.create_item_chests(surface, position, force, items, chest
             end
         end
     end
+    return created_chests
 end
 
 function ScenarioUtils.spawn_player(player, surface, position, items)

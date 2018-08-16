@@ -1,8 +1,8 @@
-local String = require("Utils.String")
-local Table = require("Utils.Table")
-local GuiUtils = require("Utils.Gui")
-local GuiEvent = require("stdlib.event.gui")
-local Event = require("stdlib.event.event")
+local String = require("Utils/String")
+local Table = require("Utils/Table")
+local GuiUtils = require("Utils/Gui")
+local GuiEvent = require("stdlib/event/gui")
+local Event = require("stdlib/event/event")
 
 -- Table Viewer UI
 ------------------------------------------------------------------------------

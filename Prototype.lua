@@ -1,5 +1,5 @@
 require("util")
-local Table = require("Utils.table")
+local Table = require("Utils.Table")
 
 
 local ProtUtils = {}
@@ -26,7 +26,9 @@ function ProtUtils.correct_item(s)
 		["portable-solar-panel"] = "solar-panel-equipment",
 		["small-worm"] = "small-worm-turret",
 		["medium-worm"] = "medium-worm-turret",
-		["big-worm"] = "big-worm-turret"
+		["big-worm"] = "big-worm-turret",
+		["portable-fusion-reactor-equipment"] = "fusion-reactor-equipment",
+		["worker-robot-speed"] = "worker-robots-speed"
 	}
 	return fix[s] or s
 end
@@ -104,7 +106,7 @@ function ProtUtils.new_entity(new_name, old_name, type)
 
 	local recipe_prototype = data.raw.recipe[old_name]
 	if recipe_prototype then
-		Table.merge{
+		recipe_prototype = Table.merge{
 			recipe_prototype,
 			{
 				name = new_name,
