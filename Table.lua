@@ -86,14 +86,13 @@ function TableUtils.concat_lists(tables)
 end
 
 
-
 function TableUtils.merge_inplace(tables)
 	if not tables or not tables[1] then error("Bogus argument for table merge. " .. debug.traceback()) end
 	local table1 = tables[1]
 	for i, t in pairs(tables) do
 		if i ~= 1 then
 			for k, v in pairs(t) do
-				if type(v) == "table" and (table1[k] or false) == "table"then
+				if type(v) == "table" and (table1[k] or false) == "table" then
 					table1[k] = TableUtils.merge_inplace_recursive{table1[k], v}
 				else
 					table1[k] = TableUtils.deepcopy(v)
@@ -105,6 +104,21 @@ function TableUtils.merge_inplace(tables)
 	return table1
 end
 
+
+-- merge, no duplicates
+function TableUtils.set_merge(tables)
+	local table1 = tables[1]
+	for j, t in pairs(tables) do
+		if j ~= 1 then
+			for i = 1, #t do
+				local elem = t[i]
+				if not TableUtils.find(elem, table1) then
+					table.insert(table1, elem)
+				end
+			end
+		end
+	end
+end
 
 
 function TableUtils.keys(t)
@@ -178,7 +192,7 @@ function TableUtils.remove(t, key, item)
 		local found = false
 		local i = 1
 		while i < #t[key] do
-			local u = t[i]
+			local u = t[key][i]
 			if (u and (type(item) == "table") and TableUtils.compare(u, item)) or (u == item) then
 				table.remove(t[key], i)
 				found = true

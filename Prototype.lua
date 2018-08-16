@@ -166,9 +166,18 @@ function ProtUtils.rename_prereq(old_name, new_name)
 	end
 end
 
+-- Rename Technology
+-- Bugs.
+function ProtUtils.rename_tech(old_name, new_name)
+	ProtUtils.rename_prereq(old_name, new_name)
+	local tech = Table.copy(ProtUtils.technology(old_name))
+	tech.name = new_name
+	data.raw.technology[old_name] = nil
+	data:extend{tech}
+end
 
 -- Merge technologies.
--- Removes old techs from data.raw, but won't add the new one, instead it is returned.
+-- Removes old techs from data.raw, adds the new one to data.raw, returns the new one.
 -- Better set cost manually if merged techs need different pack types.
 function ProtUtils.merge_techs(techs, new_name)
 	local old_names = {}
@@ -243,7 +252,16 @@ function ProtUtils.merge_techs(techs, new_name)
 		ProtUtils.rename_prereq(old_name, new_name)
 	end
 
-	-- Adjust prerequisites of this tech
+	-- Add prerequisites of old techs to this tech.
+	for _, old_name in pairs(old_names) do
+		local tech = ProtUtils.technology(old_name)
+		if tech.prerequisites then
+			if not new_tech.prerequisites then new_tech.prerequisites = {} end
+			Table.set_merge{new_tech.prerequisites, tech.prerequisites}
+		end
+	end
+
+	-- Remove old techs from prerequisites of this tech
 	if new_tech.prerequisites then
 		local i = 1
 		while i <= #new_tech.prerequisites do
@@ -372,7 +390,8 @@ end
 
 function ProtUtils.del_recipe_unlock(tech, recipe)
 	tech = ProtUtils.tech(tech)
-	Table.remove(tech, "effects", {type="unlock-recipe", recipe=recipe})
+	local found = Table.remove(tech, "effects", {type="unlock-recipe", recipe=recipe})
+	--error("found: " .. ((found or "false") and "true"))
 end
 
 
@@ -398,12 +417,10 @@ end
 
 
 function ProtUtils.del_prereq(tech, prereq)
-	if type(tech) == "string" then
-		tech = ProtUtils.tech(tech)
-	end
+	tech = ProtUtils.tech(tech)
 	if tech.prerequisites then
 		local i = 1
-		while i < #tech.prerequisites do
+		while i <= #tech.prerequisites do
 			local p = tech.prerequisites[i]
 			if p == prereq then
 				table.remove(tech.prerequisites, i)
@@ -411,6 +428,7 @@ function ProtUtils.del_prereq(tech, prereq)
 				i = i + 1
 			end
 		end
+		if #tech.prerequisites < 1 then tech.prerequisites = {} end
 	end
 end
 
